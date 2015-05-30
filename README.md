@@ -6,8 +6,8 @@ This is so you can find when people don't add passphrases to things, for use in 
 
 # Requirements
 
-[Paramiko](http://www.paramiko.org/) for Python.
-[ag/the silver searcher](http://betterthanack.com/) for lazy searching.
+* [Paramiko](http://www.paramiko.org/) for Python.
+* [ag/the silver searcher](http://betterthanack.com/) for lazy searching.
 
 # Using
 
