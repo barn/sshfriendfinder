@@ -104,7 +104,7 @@ def findkeys(dir):
         sys.exit("Unable to find 'ag', which this uses.")
 
 
-def do_homedir(user, hosts=None):
+def do_homedir(user, hosts=None, trypattern=None):
 
     p = Person(name=user)
 
@@ -120,13 +120,31 @@ def do_homedir(user, hosts=None):
         print "Can't find any SSH keys of use in '%s'" % sshdir
         return
 
-    if hosts is None:
-        hosts = ['127.0.0.1']
-
     # hosts = ['127.0.0.1', 'bastion.example.org', 'fw.example.org']
-    for host in hosts:
+    for host in get_hosts(user, hosts, trypattern):
         print "Trying against %s:" % host
         p.try_host(host)
+
+
+def get_hosts(user, hosts=[], trypattern=None):
+    """
+    work out all the hosts, defaults to just localhost.
+    """
+    if hosts is None:
+        if trypattern is None:
+            return ['127.0.0.1']
+        else:
+            return [patternhost(trypattern, user)]
+    else:
+        return hosts.append(patternhost(trypattern, user))
+
+
+def patternhost(pattern, user):
+    """
+    Given a 'something-%s-example.org' format, return that with %s replaced
+    (once) by the username in question.
+    """
+    return pattern % user
 
 
 if __name__ == "__main__":
@@ -140,9 +158,12 @@ if __name__ == "__main__":
     p.add_argument('--tryhost', '-t', metavar='host.example.org', nargs='+',
                    help='add a host to try against')
 
+    p.add_argument('--trypattern', '-T', metavar='user-%s.example.org',
+                   help='add a host with a name template to try against')
+
     args = p.parse_args()
 
     if args.home:
-        do_homedir(args.home, args.tryhost)
+        do_homedir(args.home, args.tryhost, args.trypattern)
     else:
         p.print_help()
