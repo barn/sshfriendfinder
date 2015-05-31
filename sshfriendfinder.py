@@ -14,6 +14,7 @@
 # -----------------------------------------------------------
 import argparse
 import os
+import pwd
 import subprocess
 import sys
 
@@ -104,6 +105,23 @@ def findkeys(dir):
         sys.exit("Unable to find 'ag', which this uses.")
 
 
+def do_directory(somedir, hosts=None, trypattern=None):
+
+    for key in findkeys(somedir):
+        user = getfileowner(key)
+        p = Person(name=user)
+        p.loadkey(key)
+
+        for host in get_hosts(user, hosts, trypattern):
+            # XXX need to add a --verbose.
+            # print "Trying '%s' as %s against %s:" % (key, user, host)
+            p.try_host(host)
+
+
+def getfileowner(somefile):
+    return pwd.getpwuid(os.stat(somefile).st_uid).pw_name
+
+
 def do_homedir(user, hosts=None, trypattern=None):
 
     p = Person(name=user)
@@ -152,8 +170,13 @@ if __name__ == "__main__":
     p = argparse.ArgumentParser(description='Find me some SSH keys,\
         and play with them')
 
-    p.add_argument('--home', '-H', metavar='davedave',
+    g = p.add_mutually_exclusive_group()
+
+    g.add_argument('--home', '-H', metavar='davedave',
                    help='Run against user\'s SSH dir')
+
+    g.add_argument('--directory', '-d', metavar='/home/',
+                   help='Run against a directory, and use owner of key as user')
 
     p.add_argument('--tryhost', '-t', metavar='host.example.org', nargs='+',
                    help='add a host to try against')
@@ -165,5 +188,7 @@ if __name__ == "__main__":
 
     if args.home:
         do_homedir(args.home, args.tryhost, args.trypattern)
+    elif args.directory:
+        do_directory(args.directory, args.tryhost, args.trypattern)
     else:
         p.print_help()
