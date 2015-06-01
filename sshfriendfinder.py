@@ -163,13 +163,15 @@ def get_hosts(user, hosts=[], trypattern=None):
     """
     work out all the hosts, defaults to just localhost.
     """
-    if hosts is None:
+    if hosts is []:
         if trypattern is None:
             return ['127.0.0.1']
         else:
             return [patternhost(trypattern, user)]
     else:
-        return hosts.append(patternhost(trypattern, user))
+        h = [patternhost(trypattern, user)]
+        hosts.extend(h)
+        return hosts
 
 
 def patternhost(pattern, user):
