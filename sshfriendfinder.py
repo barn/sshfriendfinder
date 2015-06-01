@@ -100,9 +100,24 @@ def findkeys(dir):
     """
     cmd = ['ag', '-l', '--nocolor', '--', '-----BEGIN .* PRIVATE KEY-----', dir]
     try:
-        return subprocess.check_output(cmd).rstrip().split("\n")
+        return run_a_command(cmd)
     except OSError:
         sys.exit("Unable to find 'ag', which this uses.")
+
+
+def run_a_command(cmd):
+    """
+    Battle against the old versions of python, thanks RHEL.
+    """
+    py_version = sys.version_info
+
+    # RHEL is the worst.
+    if py_version[0] == 2 and py_version[1] < 7:
+        proc = subprocess.Popen(cmd, stdout=subprocess.PIPE)
+        return proc.communicate()[0].rstrip().split("\n")
+
+    else:
+        return subprocess.check_output(cmd).rstrip().split("\n")
 
 
 def do_directory(somedir, hosts=None, trypattern=None):
