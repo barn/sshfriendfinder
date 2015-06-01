@@ -45,6 +45,7 @@ class Person(object):
 
         ssh = paramiko.SSHClient()
         ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        # paramiko.common.logging.basicConfig(level=paramiko.common.DEBUG)
 
         for filename, k in self.keys.iteritems():
 
