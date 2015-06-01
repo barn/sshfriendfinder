@@ -83,9 +83,15 @@ def loadkeyfile(privatekeyfile):
 
     key = False
 
-    for keyloader in [paramiko.RSAKey.from_private_key_file,
-                      paramiko.DSSKey.from_private_key_file,
-                      paramiko.ECDSAKey.from_private_key_file]:
+    keytypes = [paramiko.RSAKey.from_private_key_file,
+                paramiko.DSSKey.from_private_key_file]
+
+    # older (or you know, RHEL ones) don't have this, so only import it if we
+    # have it.
+    if 'ECDSAKey' in paramiko.__all__:
+        keytypes.extend(paramiko.ECDSAKey.from_private_key_file)
+
+    for keyloader in keytypes:
         try:
             key = keyloader(privatekeyfile)
         except paramiko.ssh_exception.PasswordRequiredException:
