@@ -59,7 +59,7 @@ class Person(object):
 
             except paramiko.ssh_exception.AuthenticationException, e:
                 # Didn't authenticate, which is good!
-                print "Failed to auth with %s, this is good" % e
+                print "Failed to auth with %s using %s, yay." % (e, filename)
                 continue
             except Exception, e:
                 print "It broke with %s" % e
@@ -67,9 +67,12 @@ class Person(object):
 
             ssh.close()
             if idout != '':
+                iduser = idout.split(' ')[0]
                 # print k.get_name() + " " + k.get_base64() + " " + filename
-                print "'%s' will get you on to %s as %s" % (filename,
-                                                            host, self.name)
+                print "'%s' will get you on to %s as %s: %s" % (filename,
+                                                                host,
+                                                                self.name,
+                                                                iduser)
 
 
 def loadkeyfile(privatekeyfile):
